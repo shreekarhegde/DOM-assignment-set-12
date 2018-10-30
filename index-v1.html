@@ -1,0 +1,113 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <title>ToDo</title>
+</head>
+
+<body>
+    <h2>Welcome <span id="name"></span></h2>
+    <h2>Listing Tasks - <span id="count"></span></h2>
+    <ul id="tasks"></ul>
+    <h2> Completed tasks </h2>
+    <ul id="completed"></ul>
+
+    <h3>Add task</h3>
+    <form id="taskForm">
+        <label for="title">Title</label>
+        <input type="text" id="title" name="title" /><br/>
+
+        <input type="checkbox" id="status" name="status" />
+        <label for="status"> is Completed</label><br/>
+
+        <input type="submit" value="Add" />
+    </form>
+    <br/><br/>
+
+    <button onclick="resetName()">Set Name </button>
+    <button onclick="clearName()">Clear Name</button>
+</body>
+<script>
+
+    const nameHandle = document.getElementById('name');
+    const countHandle = document.getElementById('count');
+    const tasksHandle = document.getElementById('tasks');
+    const taskFormHandle = document.getElementById('taskForm');
+    const titleHandle = document.getElementById('title');
+    const statusHandle = document.getElementById('status');
+    const completeHandle = document.getElementById('completed');
+
+
+    nameHandle.innerHTML = localStorage.getItem('name');
+
+    let tasks = localStorage.getItem('tasks') ? JSON.parse(localStorage.getItem('tasks')) : [];
+    countHandle.innerHTML = tasks.length;
+
+    function buildTaskList(task) {
+        let li = document.createElement('li');
+        let text = document.createTextNode(task.title);
+        let checkbox = document.createElement('input');
+        checkbox.type = "checkbox";
+        checkbox.name = "name";
+        checkbox.id = "id";
+
+        let label = document.createElement('label')
+        label.htmlFor = "id";
+        label.appendChild(text);
+        li.appendChild(checkbox);
+        li.appendChild(label);
+
+        checkbox.addEventListener('change', function () {
+            if (checkbox.checked) {
+                let li = document.createElement('li');
+                li.appendChild(text);
+                completeHandle.appendChild(li);
+            } else {
+                li.appendChild(text);
+            }
+        }, false)
+
+        li.appendChild(text);
+        tasksHandle.appendChild(li);
+    }
+
+    tasks.forEach((task) => {
+        buildTaskList(task);
+    });
+
+    taskFormHandle.addEventListener('submit', function (e) {
+        //prevent the form from going to a new page.
+        e.preventDefault();
+        //Build an object with the form data.
+        let task = {
+            title: titleHandle.value,
+            status: statusHandle.checked
+        };
+
+        //pass to build a <li> </li>
+        buildTaskList(task);
+
+        // push to array and save in storage
+
+        tasks.push(task);
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+
+        taskFormHandle.reset();
+        countHandle.innerHTML = tasks.length;
+
+    }, false)
+
+    function clearName() {
+        localStorage.clear('name');
+        nameHandle.innerHTML = '';
+    }
+
+    function resetName() {
+        let newName = prompt("Enter your name");
+        localStorage.setItem('name', newName);
+        nameHandle.innerHTML = localStorage.getItem('name');
+    }
+
+</script>
+
+</html>
